@@ -7,15 +7,17 @@
 # EFI Mount script credits to RehabMan @tonymacx86
 
 # Declare variables to be used in this script
-scriptVersion=1.0
+scriptVersion=2.0
 scriptDir=~/Library/debugNk
 efiScript=$scriptDir/mount_efi.sh
+pledit=/usr/libexec/PlistBuddy
 efiScriptURL="https://raw.githubusercontent.com/black-dragon74/OSX-Debug/master/mount_efi.sh"
 regExplorer=/Applications/IORegistryExplorer.app
 regExplorerURL="https://raw.githubusercontent.com/black-dragon74/OSX-Debug/master/IORegistryExplorer.zip"
 patchmaticB=$scriptDir/patchmatic
 patchmaticBURL="https://raw.githubusercontent.com/black-dragon74/OSX-Debug/master/patchmatic"
 testURL="google.com"
+maskedVal="XX-MASKED-XX"
 checkForConnAhead=0
 randomNumber=$(echo $(( ( RANDOM )  + 12 )))
 ioREGName=$(hostname | sed 's/.local//g')
@@ -336,6 +338,11 @@ echo -e "Removing theme dir."
 cd ./CLOVER && rm -rf them* &>/dev/null
 echo -e "Removing tools dir."
 rm -rf too* &>/dev/null
+echo -e "Masking your System IDs"
+$pledit -c "Set SMBIOS:SerialNumber $maskedVal" config.plist
+$pledit -c "Set SMBIOS:BoardSerialNumber $maskedVal" config.plist 
+$pledit -c "Set SMBIOS:SmUUID $maskedVal" config.plist 
+$pledit -c "Set RtVariables:ROM $maskedVal" config.plist 
 cd ..
 echo -e "Dumped CLOVER files."
 echo -e "Unmounted $efiloc"
