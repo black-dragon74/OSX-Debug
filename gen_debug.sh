@@ -7,7 +7,7 @@
 # EFI Mount script credits to RehabMan @tonymacx86
 
 # Declare variables to be used in this script
-scriptVersion=2.1
+scriptVersion=2.2
 scriptDir=~/Library/debugNk
 dbgURL="https://raw.githubusercontent.com/black-dragon74/OSX-Debug/master/gen_debug.sh"
 efiScript=$scriptDir/mount_efi.sh
@@ -25,12 +25,15 @@ ioREGName=$(hostname | sed 's/.local//g')
 outDir=~/Desktop/$randomNumber
 zipFileName=debug_$randomNumber.zip
 efiloc="null"
+sysPfl=/usr/sbin/system_profiler
+hostName=$(hostname | sed 's/.local//g')
+genSysDump="no"
 
 # Declare functions to be used in this script.
 function printHeader(){
 	clear
 	echo -e "====================================="
-	echo -e "+    OSX DEBUG REPORT GENERATOR     +"
+	echo -e "+   macOS DEBUG REPORT GENERATOR    +"
 	echo -e "-------------------------------------"
 	echo -e "+       SCRIPT VERSION $scriptVersion          +"
 	echo -e "====================================="
@@ -162,6 +165,30 @@ function dumpKextstat(){
 	echo -e " "
 }
 
+# Add function to dump system information, requested by Jake
+# Make it optional though as a full system report might take 3+ minutes on slow machines
+# If user includes a -sysprofile arg then only generate a system report
+function genSystemRep(){
+	# Generate report in .spx format so that it is easier to debug.
+	# If user wishes so, he can generate a report in txt format.
+	# To generate a report in .txt format you can use gen_debug -sysprofile txt
+	if [[ ! -z $1 ]]; then
+		# Check arg
+		if [[ "$1" == "txt" ]]; then
+			# Generate report in .txt format
+			echo "Generating report in txt format as requested."
+			$sysPfl > $outDir/SysDump-$hostName.txt 2>/dev/null
+		else
+			echo -e "Ignored invalid arg: $1\nGenerating report in spx format."
+			# Generate report in spx format
+			$sysPfl -xml > $outDir/SysDump-$hostName.spx 2>/dev/null
+		fi
+	else
+		# Generate report in spx format
+		$sysPfl -xml > $outDir/SysDump-$hostName.spx 2>/dev/null
+	fi
+}
+
 # Welcome, Here wo go!
 printHeader
 
@@ -185,12 +212,18 @@ if [[ ! -z $arg ]]; then
 			sudo cp -f ./tdbg $(which gen_debug)
 			sudo chmod a+x $(which gen_debug)
 			rm ./tdbg &>/dev/null
+			exit
 			;;
+		"-sysprofile" )
+			# Set genSysDump to yes
+			genSysDump="yes"
+			echo "System report will be included in the dump as requested."
+			;;	
 			* )
 			echo "Invalid args. Exit."
+			exit
 			;;	
 	esac
-	exit
 fi
 
 # Check if script directory exists else create it
@@ -383,6 +416,15 @@ diskutil unmount $efiloc &>/dev/null
 # Dump IOREG
 echo -e "Dumping IOREG."
 dumpIOREG
+
+# Dump System Profile if user has asked so
+if [[ "$genSysDump" == "yes" ]]; then
+	echo "Generating system info, this may take a while."
+	genSystemRep $2
+else
+	echo -e "System dump not requested.\nYou may use gen_debug -sysinfo to generate system dump."
+	echo -e "For output in TXT format use: \"gen_debug -sysinfo txt\". Default format is SPX"
+fi
 
 # Zip all the files
 echo -e "Zipping all the files"
