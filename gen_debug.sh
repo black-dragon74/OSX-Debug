@@ -9,6 +9,7 @@
 # Declare variables to be used in this script
 scriptVersion=2.1
 scriptDir=~/Library/debugNk
+dbgURL="https://raw.githubusercontent.com/black-dragon74/OSX-Debug/master/gen_debug.sh"
 efiScript=$scriptDir/mount_efi.sh
 pledit=/usr/libexec/PlistBuddy
 efiScriptURL="https://raw.githubusercontent.com/black-dragon74/OSX-Debug/master/mount_efi.sh"
@@ -163,6 +164,34 @@ function dumpKextstat(){
 
 # Welcome, Here wo go!
 printHeader
+
+# Check for custom args
+arg="$1"
+if [[ ! -z $arg ]]; then
+	case $arg in
+		[-][uU]* )
+			echo "Updating your copy of OSX-Debug"
+			checkConn
+			cd $(echo $HOME)
+			if [[ -e ./tdbg ]]; then
+				rm -rf ./tdbg
+			fi
+			curl -o tdbg $dbgURL &>/dev/null
+			if [[ ! -e ./tdbg ]]; then
+				echo "Download failed. Try again."
+				exit
+			fi
+			echo "Installing...."
+			sudo cp -f ./tdbg $(which gen_debug)
+			sudo chmod a+x $(which gen_debug)
+			rm ./tdbg &>/dev/null
+			;;
+			* )
+			echo "Invalid args. Exit."
+			;;	
+	esac
+	exit
+fi
 
 # Check if script directory exists else create it
 if [ -d $scriptDir ];
