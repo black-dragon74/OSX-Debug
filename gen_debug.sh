@@ -7,7 +7,7 @@
 # EFI Mount script credits to RehabMan @tonymacx86
 
 # Declare variables to be used in this script
-scriptVersion=2.0
+scriptVersion=2.1
 scriptDir=~/Library/debugNk
 efiScript=$scriptDir/mount_efi.sh
 pledit=/usr/libexec/PlistBuddy
@@ -57,10 +57,13 @@ function dumpIOREG(){
 		delay 1
 
 		activate application "IORegistryExplorer"
+		delay 4
 		tell application "System Events"
 			tell process "IORegistryExplorer"
 				keystroke "s" using {command down}
+				delay 1
 				keystroke "g" using {command down, shift down}
+				delay 0.5
 				keystroke "$outDir"
 				delay 1
 				key code 36
@@ -70,7 +73,7 @@ function dumpIOREG(){
 				key code 36
 				delay 3
 				keystroke "s" using {command down}
-				delay 2
+				delay 3
 			end tell
 		end tell
 
