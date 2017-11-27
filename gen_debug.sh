@@ -422,8 +422,8 @@ if [[ "$genSysDump" == "yes" ]]; then
 	echo "Generating system info, this may take a while."
 	genSystemRep $2
 else
-	echo -e "System dump not requested.\nYou may use gen_debug -sysinfo to generate system dump."
-	echo -e "For output in TXT format use: \"gen_debug -sysinfo txt\". Default format is SPX"
+	echo -e "System dump not requested.\nYou may use gen_debug -sysprofile to generate system dump."
+	echo -e "For output in TXT format use: \"gen_debug -sysprofile txt\". Default format is SPX"
 fi
 
 # Zip all the files
