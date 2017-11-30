@@ -7,7 +7,7 @@
 # EFI Mount script credits to RehabMan @tonymacx86
 
 # Declare variables to be used in this script
-scriptVersion=2.2
+scriptVersion=2.3
 scriptDir=~/Library/debugNk
 dbgURL="https://raw.githubusercontent.com/black-dragon74/OSX-Debug/master/gen_debug.sh"
 efiScript=$scriptDir/mount_efi.sh
@@ -398,7 +398,7 @@ rebuildCaches &>kextcache_log.txt
 echo -e "Dumping clover files."
 efiloc=$(sudo $efiScript)
 echo -e "Mounted EFI at $efiloc (credits RehabMan)"
-cp -rf $efiloc/EFI/CLOVER .
+cp -prf $efiloc/EFI/CLOVER .
 echo -e "Removing theme dir."
 cd ./CLOVER && rm -rf them* &>/dev/null
 echo -e "Removing tools dir."
