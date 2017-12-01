@@ -7,7 +7,7 @@
 # EFI Mount script credits to RehabMan @tonymacx86
 
 # Declare variables to be used in this script
-scriptVersion=2.3
+scriptVersion=2.4
 scriptDir=~/Library/debugNk
 dbgURL="https://raw.githubusercontent.com/black-dragon74/OSX-Debug/master/gen_debug.sh"
 efiScript=$scriptDir/mount_efi.sh
@@ -186,6 +186,14 @@ function genSystemRep(){
 	else
 		# Generate report in spx format
 		$sysPfl -xml > $outDir/SysDump-$hostName.spx 2>/dev/null
+	fi
+}
+
+function dumpBootLog(){
+	if [[ -z $(which bdmesg) ]]; then
+		echo "BDMESG not found. Unable to dump boot log."
+	else
+		bdmesg > $outDir/bootlog.txt 2>/dev/null
 	fi
 }
 
@@ -425,6 +433,10 @@ else
 	echo -e "System dump not requested.\nYou may use gen_debug -sysprofile to generate system dump."
 	echo -e "For output in TXT format use: \"gen_debug -sysprofile txt\". Default format is SPX"
 fi
+
+# Dump boot log
+echo "Dumping Boot log"
+dumpBootLog
 
 # Zip all the files
 echo -e "Zipping all the files"
