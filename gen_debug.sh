@@ -7,7 +7,7 @@
 # EFI Mount script credits to RehabMan @tonymacx86
 
 # Declare variables to be used in this script
-scriptVersion=2.4
+scriptVersion=2.5
 scriptDir=~/Library/debugNk
 dbgURL="https://raw.githubusercontent.com/black-dragon74/OSX-Debug/master/gen_debug.sh"
 efiScript=$scriptDir/mount_efi.sh
@@ -281,7 +281,53 @@ fi
 if [ -e $regExplorer ];
 	then
 	echo -e "IORegistryExplorer found at $regExplorer"
-	checkForConnAhead=1
+	echo "Verifying if the version is 2.1"
+	if [[  "$($pledit -c "Print CFBundleVersion" $regExplorer/Contents/Info.plist)" = "2.1" ]]; then
+		echo "Verified version 2.1"
+		checkForConnAhead=1
+	else
+		echo "This version of IORegistryExplorer is not recommended."
+		echo "Removing conflicting version."
+		rm -rf $regExplorer &>/dev/null
+
+		# In some cases maybe sudo is required to remove this application
+		if [[ -e $regExplorer ]]; then
+			sudo rm -rf $regExplorer &>/dev/null
+		fi
+
+		# Check connection only if required
+		if [ $checkForConnAhead -eq 1 ];
+			then
+			echo -e "Checking connectivity.."
+			checkConn # If no connection found, script will terminate here.
+		fi
+
+		# Stuffs to do in case internet connectivity is fine
+		echo -e "Downloading IORegistryExplorer."
+		curl -o $scriptDir/IORegistryExplorer.zip $regExplorerURL &>/dev/null
+
+		# Check if the downloaded file exists
+		if [ -e $scriptDir/IORegistryExplorer.zip ];
+			then
+			echo -e "Downloaded IORegistryExplorer."
+			echo -e "Verifying Downloaded file."
+			if [[ $(echo $(md5 $scriptDir/IORegistryExplorer.zip) | sed 's/.*= //g') = 494a39316ed52c0c73438a4755c4732a ]];
+				then
+				echo -e "File Verified. Installing."
+				unzip -o $scriptDir/IORegistryExplorer.zip -d /Applications/ &>/dev/null
+				echo -e "Installed IORegistryExplorer at $regExplorer"
+				rm -f $scriptDir/IORegistryExplorer.zip
+				rm -rf /Applications/__MACOSX &>/dev/null
+			else
+				echo -e "Maybe a corrupted file is downloaded. Try again."
+				rm -f $scriptDir/IORegistryExplorer.zip
+				exit
+			fi
+		else
+			echo -e "Download of IORegistryExplorer failed. Try again."
+			exit
+		fi
+	fi
 else
 	echo -e "IORegistryExplorer not found at $regExplorer"
 	# Check connection only if required
