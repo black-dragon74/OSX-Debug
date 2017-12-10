@@ -7,7 +7,7 @@
 # EFI Mount script credits to RehabMan @tonymacx86
 
 # Declare variables to be used in this script
-scriptVersion=2.5
+scriptVersion=2.6
 scriptDir=~/Library/debugNk
 dbgURL="https://raw.githubusercontent.com/black-dragon74/OSX-Debug/master/gen_debug.sh"
 efiScript=$scriptDir/mount_efi.sh
@@ -54,6 +54,15 @@ function checkConn(){
 	fi
 }
 
+function checkIOREG(){
+	if [[ ! -e $outDir/$ioREGName.ioreg ]]; then
+		echo "IOREG dump failed. Retrying" && sleep 0.5
+		dumpIOREG
+	else
+		echo "IOREG Verified as $outDir/$ioREGName.ioreg"
+	fi
+}
+
 function dumpIOREG(){
 	# Credits black-dragon74
 	osascript >/dev/null 2>&1 <<-EOF
@@ -83,6 +92,9 @@ function dumpIOREG(){
 
 		quit application "IORegistryExplorer"
 	EOF
+
+	# Check for successful dump
+	checkIOREG
 }
 
 function dumpKernelLog(){
