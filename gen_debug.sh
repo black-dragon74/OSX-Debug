@@ -295,7 +295,9 @@ fi
 printHeader
 
 # Update if new version is found on the remote
-updateIfNew
+if [[ $1 != "-u"* ]]; then
+	updateIfNew
+fi
 
 # Check for custom args
 arg="$1"
