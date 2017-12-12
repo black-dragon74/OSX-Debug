@@ -244,6 +244,11 @@ function dumpBootLog(){
 	fi
 }
 
+if [[ $1 = "-v" ]]; then
+	echo $scriptVersion
+	exit
+fi
+
 # Welcome, Here wo go!
 printHeader
 
