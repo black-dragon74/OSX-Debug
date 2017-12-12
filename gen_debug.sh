@@ -57,10 +57,45 @@ function checkConn(){
 function checkIOREG(){
 	if [[ ! -e $outDir/$ioREGName.ioreg ]]; then
 		echo "IOREG dump failed. Retrying" && sleep 0.5
-		dumpIOREG
+		dumpIOREGv2
 	else
 		echo "IOREG Verified as $outDir/$ioREGName.ioreg"
 	fi
+}
+
+function dumpIOREGv2(){
+	echo "Increased delay x2 for IOREG dump. This will take a while...(33 sec)"
+	# Credits black-dragon74
+	osascript >/dev/null 2>&1 <<-EOF
+		quit application "IORegistryExplorer"
+		delay 2
+
+		activate application "IORegistryExplorer"
+		delay 8
+		tell application "System Events"
+			tell process "IORegistryExplorer"
+				keystroke "s" using {command down}
+				delay 2
+				keystroke "g" using {command down, shift down}
+				delay 1
+				keystroke "$outDir"
+				delay 2
+				key code 36
+				delay 4
+				keystroke "$ioREGName"
+				delay 2
+				key code 36
+				delay 6
+				keystroke "s" using {command down}
+				delay 6
+			end tell
+		end tell
+
+		quit application "IORegistryExplorer"
+	EOF
+
+	# Check for successful dump
+	checkIOREG
 }
 
 function dumpIOREG(){
