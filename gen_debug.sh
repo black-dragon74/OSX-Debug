@@ -7,7 +7,7 @@
 # EFI Mount script credits to RehabMan @tonymacx86
 
 # Declare variables to be used in this script
-scriptVersion=2.7
+scriptVersion=2.8
 scriptDir=~/Library/debugNk
 dbgURL="https://raw.githubusercontent.com/black-dragon74/OSX-Debug/master/gen_debug.sh"
 efiScript=$scriptDir/mount_efi.sh
@@ -244,6 +244,10 @@ function dumpBootLog(){
 	fi
 }
 
+function dumpNVRAM(){
+	nvram -x -p
+}
+
 function updateIfNew(){
 	# This function checks if the script's update is available on the remote
 	# If yes, it will update automatically
@@ -260,7 +264,7 @@ function updateIfNew(){
 			reVer=$(./ndbg -v)
 			if [[ "$reVer" != $scriptVersion ]]; then
 				echo "Hey! Before we proceed, I found a new version of the script." && sleep 0.5
-				echo "You are running $scriptVersion and new version is $reVer." && sleep 0.5
+				echo "You are running $scriptVersion and new version is $reVer" && sleep 0.5
 				read -p "Shall I update it now?[y/n]: " updAns
 				case $updAns in
 					[yY]* )
@@ -579,6 +583,10 @@ fi
 # Dump boot log
 echo "Dumping Boot log"
 dumpBootLog
+
+# Dump NVRAM
+echo "Dumping NVRAM values..."
+dumpNVRAM > nvram.plist
 
 # Zip all the files
 echo -e "Zipping all the files"
