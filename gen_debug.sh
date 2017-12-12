@@ -433,6 +433,9 @@ echo -e "Data will be dumped at $outDir"
 # Request root access
 sudo xyz &>/dev/null
 
+# Add an empty file denoting gen_debug version
+touch gdb-$scriptVersion
+
 # Extract loaded tables using patchmatic
 echo -e "Dumping loaded ACPI tables."
 mkdir patchmatic_extraction
