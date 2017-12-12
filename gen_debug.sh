@@ -7,7 +7,7 @@
 # EFI Mount script credits to RehabMan @tonymacx86
 
 # Declare variables to be used in this script
-scriptVersion=2.6
+scriptVersion=2.7
 scriptDir=~/Library/debugNk
 dbgURL="https://raw.githubusercontent.com/black-dragon74/OSX-Debug/master/gen_debug.sh"
 efiScript=$scriptDir/mount_efi.sh
@@ -244,6 +244,44 @@ function dumpBootLog(){
 	fi
 }
 
+function updateIfNew(){
+	# This function checks if the script's update is available on the remote
+	# If yes, it will update automatically
+
+	# If internet connection is fine
+	if ping -c 1 $testURL &>/dev/null;
+		then
+		echo "Hold on for a moment...."
+		# Get latest version
+		cd $scriptDir
+		curl -o ndbg $dbgURL &>/dev/null
+		if [[ -e ./ndbg ]]; then
+			chmod a+x ./ndbg
+			reVer=$(./ndbg -v)
+			if [[ "$reVer" != $scriptVersion ]]; then
+				echo "Hey! Before we proceed, I found a new version of the script." && sleep 0.5
+				echo "You are running $scriptVersion and new version is $reVer." && sleep 0.5
+				read -p "Shall I update it now?[y/n]: " updAns
+				case $updAns in
+					[yY]* )
+						# Update
+						sudo cp -f ./ndbg $(which gen_debug)
+						sudo chmod a+x $(which gen_debug)
+						rm ./ndbg &>/dev/null
+						echo "Great! Now re run the program..."
+						exit
+						;;
+					* )
+						# Don't update
+						echo "It is recommended to have the latest version. Still, you rule."
+						echo "Proceeding......"
+						echo
+				esac
+			fi
+		fi
+	fi
+}
+
 if [[ $1 = "-v" ]]; then
 	echo $scriptVersion
 	exit
@@ -251,6 +289,9 @@ fi
 
 # Welcome, Here wo go!
 printHeader
+
+# Update if new version is found on the remote
+updateIfNew
 
 # Check for custom args
 arg="$1"
