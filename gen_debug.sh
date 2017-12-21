@@ -7,7 +7,7 @@
 # EFI Mount script credits to RehabMan @tonymacx86
 
 # Declare variables to be used in this script
-scriptVersion=2.8
+scriptVersion=2.9
 scriptDir=~/Library/debugNk
 dbgURL="https://raw.githubusercontent.com/black-dragon74/OSX-Debug/master/gen_debug.sh"
 efiScript=$scriptDir/mount_efi.sh
@@ -158,7 +158,14 @@ function dumpKernelLog(){
 }
 
 function rebuildCaches(){
-	sudo touch /System/Library/Extensions && sudo kextcache -u /
+	# Fix kext list redunancy on some macOS versions
+	swver=$(sw_vers -productVersion | sed 's/\.//g' | colrm 5)
+
+	if [[ $swvwe -ge 1011 ]]; then
+		sudo kextcache -system-caches #Using system caches tends to help
+	else
+		sudo touch /System/Library/Extensions && sudo kextcache -u / #Good old method
+	fi
 }
 
 function dumpKextstat(){
