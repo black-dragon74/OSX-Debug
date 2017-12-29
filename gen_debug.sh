@@ -8,7 +8,8 @@
 
 # Declare variables to be used in this script
 scriptVersion=2.9
-scriptDir=~/Library/debugNk
+# find scripts in the current directory for location-independence
+scriptDir=${PWD}
 dbgURL="https://raw.githubusercontent.com/black-dragon74/OSX-Debug/master/gen_debug.sh"
 efiScript=$scriptDir/mount_efi.sh
 pledit=/usr/libexec/PlistBuddy
@@ -143,11 +144,13 @@ function dumpKernelLog(){
 	bTm=$(awk -v "month=$bTm" 'BEGIN {months = "Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec"; print (index(months, month) + 3) / 4}')
 	bTm=$(printf %02d $bTm)
 
-	ep=$(date -jf '%H:%M:%S' $bTt '+%s')
+    # hardcode system BSD date path to avoid conflict in PATH (i.e. GNU date)
+	ep=$(/bin/date -jf '%H:%M:%S' $bTt '+%s')
 
 	cs=$((ep - 60 ))
 
-	bTt=$(date -r $cs '+%H:%M:%S')
+    # hardcode system BSD date path to avoid conflict in PATH (i.e. GNU date)
+	bTt=$(/bin/date -r $cs '+%H:%M:%S')
 
 	stopTime=$(log show --debug --info --start "$bTy-$bTm-$bTd $bTt" | grep loginwindow | head -1)
 	stopTime="${stopTime%      *}"
