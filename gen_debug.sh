@@ -8,8 +8,7 @@
 
 # Declare variables to be used in this script
 scriptVersion=2.9
-# find scripts in the current directory for location-independence
-scriptDir=${PWD}
+scriptDir=~/Library/debugNk
 dbgURL="https://raw.githubusercontent.com/black-dragon74/OSX-Debug/master/gen_debug.sh"
 efiScript=$scriptDir/mount_efi.sh
 pledit=/usr/libexec/PlistBuddy
