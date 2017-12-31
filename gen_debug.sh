@@ -7,7 +7,7 @@
 # EFI Mount script credits to RehabMan @tonymacx86
 
 # Declare variables to be used in this script
-scriptVersion=3.0
+scriptVersion=3.1
 scriptDir=~/Library/debugNk
 dbgURL="https://raw.githubusercontent.com/black-dragon74/OSX-Debug/master/gen_debug.sh"
 efiScript=$scriptDir/mount_efi.sh
@@ -571,6 +571,7 @@ $pledit -c "Set SMBIOS:SerialNumber $maskedVal" config.plist
 $pledit -c "Set SMBIOS:BoardSerialNumber $maskedVal" config.plist 
 $pledit -c "Set SMBIOS:SmUUID $maskedVal" config.plist 
 $pledit -c "Set RtVariables:ROM $maskedVal" config.plist 
+$pledit -c "Set RtVariables:MLB $maskedVal" config.plist 
 cd ..
 echo -e "Dumped CLOVER files."
 echo -e "Unmounted $efiloc"
