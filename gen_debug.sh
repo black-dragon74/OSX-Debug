@@ -567,11 +567,11 @@ cd ./CLOVER && rm -rf them* &>/dev/null
 echo -e "Removing tools dir."
 rm -rf too* &>/dev/null
 echo -e "Masking your System IDs"
-$pledit -c "Set SMBIOS:SerialNumber $maskedVal" config.plist
-$pledit -c "Set SMBIOS:BoardSerialNumber $maskedVal" config.plist 
-$pledit -c "Set SMBIOS:SmUUID $maskedVal" config.plist 
-$pledit -c "Set RtVariables:ROM $maskedVal" config.plist 
-$pledit -c "Set RtVariables:MLB $maskedVal" config.plist 
+$pledit -c "Set SMBIOS:SerialNumber $maskedVal" config.plist &>/dev/null
+$pledit -c "Set SMBIOS:BoardSerialNumber $maskedVal" config.plist &>/dev/null
+$pledit -c "Set SMBIOS:SmUUID $maskedVal" config.plist &>/dev/null
+$pledit -c "Set RtVariables:ROM $maskedVal" config.plist &>/dev/null
+$pledit -c "Set RtVariables:MLB $maskedVal" config.plist &>/dev/null
 cd ..
 echo -e "Dumped CLOVER files."
 echo -e "Unmounted $efiloc"
