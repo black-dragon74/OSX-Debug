@@ -527,7 +527,7 @@ echo -e "Data will be dumped at $outDir"
 sudo xyz &>/dev/null
 
 # Add an empty file denoting gen_debug version
-touch gdb-$scriptVersion
+touch sVer-$scriptVersion
 
 # Extract loaded tables using patchmatic
 echo -e "Dumping loaded ACPI tables."
