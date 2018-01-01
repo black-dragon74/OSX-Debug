@@ -21,7 +21,6 @@ testURL="google.com"
 maskedVal="XX-MASKED-XX"
 checkForConnAhead=0
 randomNumber=$(echo $(( ( RANDOM )  + 12 )))
-ioREGName=$(hostname | sed 's/.local//g')
 outDir=~/Desktop/$randomNumber
 zipFileName=debug_$randomNumber.zip
 efiloc="null"
@@ -55,11 +54,11 @@ function checkConn(){
 }
 
 function checkIOREG(){
-	if [[ ! -e $outDir/$ioREGName.ioreg ]]; then
+	if [[ ! -e $outDir/$hostName.ioreg ]]; then
 		echo "IOREG dump failed. Retrying" && sleep 0.5
 		dumpIOREGv2
 	else
-		echo "IOREG Verified as $outDir/$ioREGName.ioreg"
+		echo "IOREG Verified as $outDir/$hostName.ioreg"
 	fi
 }
 
@@ -82,7 +81,7 @@ function dumpIOREGv2(){
 				delay 2
 				key code 36
 				delay 4
-				keystroke "$ioREGName"
+				keystroke "$hostName"
 				delay 2
 				key code 36
 				delay 6
@@ -116,7 +115,7 @@ function dumpIOREG(){
 				delay 1
 				key code 36
 				delay 2
-				keystroke "$ioREGName"
+				keystroke "$hostName"
 				delay 1
 				key code 36
 				delay 3
