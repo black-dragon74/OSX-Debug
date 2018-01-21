@@ -598,11 +598,13 @@ echo "Dumping NVRAM values..."
 dumpNVRAM > nvram.plist
 
 # Zip all the files
+cd $outDir
 echo -e "Zipping all the files"
 zip -r $zipFileName * &>/dev/null
 echo -e "Zipped files at: $outDir/debug_$randomNumber.zip"
 
 # Remove unzipped files
+cd $outDir
 shopt -s extglob
 rm -rf -- !(debug_*)
 
