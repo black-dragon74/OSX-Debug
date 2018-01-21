@@ -7,7 +7,7 @@
 # EFI Mount script credits to RehabMan @tonymacx86
 
 # Declare variables to be used in this script
-scriptVersion=3.1
+scriptVersion=3.2
 scriptDir=~/Library/debugNk
 dbgURL="https://raw.githubusercontent.com/black-dragon74/OSX-Debug/master/gen_debug.sh"
 efiScript=$scriptDir/mount_efi.sh
@@ -524,7 +524,12 @@ cd $outDir
 echo -e "Data will be dumped at $outDir"
 
 # Request root access
-sudo xyz &>/dev/null
+isRoot=$(sudo id -u 2>/dev/null)
+if [[ $isRoot != 0 ]]; then
+	echo "Root access failed. Aborting...."
+	rm -rf $outDir
+	exit -1
+fi
 
 # Add an empty file denoting gen_debug version
 touch sVer-$scriptVersion
