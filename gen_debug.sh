@@ -160,7 +160,7 @@ function rebuildCaches(){
 	# Fix kext list redunancy on some macOS versions
 	swver=$(sw_vers -productVersion | sed 's/\.//g' | colrm 5)
 
-	if [[ $swvwe -ge 1011 ]]; then
+	if [[ $swver -ge 1011 ]]; then
 		sudo kextcache -system-caches #Using system caches tends to help
 	else
 		sudo touch /System/Library/Extensions && sudo kextcache -u / #Good old method
