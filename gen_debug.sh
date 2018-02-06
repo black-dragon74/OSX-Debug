@@ -169,6 +169,7 @@ function rebuildCaches(){
 
 function dumpKextstat(){
 
+	echo -e "Report generated using gen_debug ver$scriptVersion\n"
 	echo "ACPIPLAT LOG :-"
 	kextstat|grep -y acpiplat
 	echo "END ACPIPLAT LOG."
@@ -530,9 +531,6 @@ if [[ $isRoot != 0 ]]; then
 	rm -rf $outDir
 	exit -1
 fi
-
-# Add an empty file denoting gen_debug version
-touch sVer-$scriptVersion
 
 # Extract loaded tables using patchmatic
 echo -e "Dumping loaded ACPI tables."
