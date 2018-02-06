@@ -7,7 +7,7 @@
 # EFI Mount script credits to RehabMan @tonymacx86
 
 # Declare variables to be used in this script
-scriptVersion=3.3
+scriptVersion=3.4
 scriptDir=~/Library/debugNk
 dbgURL="https://raw.githubusercontent.com/black-dragon74/OSX-Debug/master/gen_debug.sh"
 efiScript=$scriptDir/mount_efi.sh
@@ -22,6 +22,7 @@ maskedVal="XX-MASKED-XX"
 checkForConnAhead=0
 randomNumber=$(echo $(( ( RANDOM )  + 12 )))
 outDir=~/Desktop/$randomNumber
+panicDir=$outDir/panic_logs
 zipFileName=debug_$randomNumber.zip
 efiloc="null"
 sysPfl=/usr/sbin/system_profiler
@@ -253,6 +254,18 @@ function dumpBootLog(){
 
 function dumpNVRAM(){
 	nvram -x -p
+}
+
+function dumpPanicLog(){
+	# If panic logs exist, dump them
+	if [[ ! -z $(ls /Library/Logs/DiagnosticReports | grep "panic" | grep -i "kernel") ]];
+	then
+		echo "Dumping kernel panic logs..." 
+		mkdir $panicDir
+		for f in $(ls /Library/Logs/DiagnosticReports | grep "panic" | grep -i "kernel"); do
+			cp /Library/Logs/DiagnosticReports/$f $panicDir
+		done
+	fi
 }
 
 function updateIfNew(){
@@ -544,6 +557,9 @@ echo -e "Dumped loaded ACPI tables."
 # Dumping system logs
 echo -e "Dumping System log."
 cp /var/log/system.log .
+
+# Dump kernel panics (if exists)
+dumpPanicLog
 
 # Dumping kernel log
 echo -e "Dumping kernel log."
