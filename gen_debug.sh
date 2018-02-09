@@ -7,7 +7,7 @@
 # EFI Mount script credits to RehabMan @tonymacx86
 
 # Declare variables to be used in this script
-scriptVersion=3.4
+scriptVersion=3.5
 scriptDir=~/Library/debugNk
 dbgURL="https://raw.githubusercontent.com/black-dragon74/OSX-Debug/master/gen_debug.sh"
 efiScript=$scriptDir/mount_efi.sh
@@ -158,11 +158,12 @@ function dumpKernelLog(){
 }
 
 function rebuildCaches(){
-	# Fix kext list redunancy on some macOS versions
 	swver=$(sw_vers -productVersion | sed 's/\.//g' | colrm 5)
 
 	if [[ $swver -ge 1011 ]]; then
-		sudo kextcache -system-caches #Using system caches tends to help
+		# Using "kextcache system-caches" fixes redunancy but can't be used as it doesn't output anything when no invalid signatured kexts are found
+		# Fall back to "sudo kextcache -i /" until a better approach is found (or Apple fixes it :P)
+		sudo kextcache -i /
 	else
 		sudo touch /System/Library/Extensions && sudo kextcache -u / #Good old method
 	fi
