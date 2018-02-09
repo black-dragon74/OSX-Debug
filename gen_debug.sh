@@ -7,7 +7,7 @@
 # EFI Mount script credits to RehabMan @tonymacx86
 
 # Declare variables to be used in this script
-scriptVersion=3.5
+scriptVersion=3.6
 scriptDir=~/Library/debugNk
 dbgURL="https://raw.githubusercontent.com/black-dragon74/OSX-Debug/master/gen_debug.sh"
 efiScript=$scriptDir/mount_efi.sh
@@ -28,6 +28,7 @@ efiloc="null"
 sysPfl=/usr/sbin/system_profiler
 hostName=$(hostname | sed 's/.local//g')
 genSysDump="no"
+fixDupes="no"
 
 # Declare functions to be used in this script.
 function printHeader(){
@@ -167,6 +168,20 @@ function rebuildCaches(){
 	else
 		sudo touch /System/Library/Extensions && sudo kextcache -u / #Good old method
 	fi
+
+	# Fix redundancy on macOS High Sierra and above
+	if [[ $swver -ge 1013 ]]; then
+		fixDupes="yes"
+	fi
+}
+
+function fixDupKextLog(){
+	# Must be run after the kextcache log is generated
+	cd $outDir
+	mv kextcache_log.txt kextcache_log_temp.txt
+	# Using sed as i love it, this can also be achieved using awk like: awk '{k=$8; $8=""} !a[$0]++{$8=k; print}' kextcache_log_temp.txt >>kextcache_log.txt
+	cat kextcache_log_temp.txt | sed -E -e 's/OSKext 0x[^[:space:]]+ /OSKext CONST /g' | sort | uniq | tail -r >>kextcache_log.txt
+	rm kextcache_log_temp.txt
 }
 
 function dumpKextstat(){
@@ -575,6 +590,11 @@ dumpKextstat &>kextstat_log.txt
 echo -e "Dumping kextcache"
 touch kextcache_log.txt
 rebuildCaches &>kextcache_log.txt
+
+# If needed, remove duplicate entries
+if [[ $fixDupes == "yes" ]]; then
+	fixDupKextLog
+fi
 
 # Dump clover files
 echo -e "Dumping clover files."
