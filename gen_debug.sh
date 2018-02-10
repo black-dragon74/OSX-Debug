@@ -7,7 +7,7 @@
 # EFI Mount script credits to RehabMan @tonymacx86
 
 # Declare variables to be used in this script
-scriptVersion=3.6
+scriptVersion=3.7
 scriptDir=~/Library/debugNk
 dbgURL="https://raw.githubusercontent.com/black-dragon74/OSX-Debug/master/gen_debug.sh"
 efiScript=$scriptDir/mount_efi.sh
@@ -592,9 +592,9 @@ touch kextcache_log.txt
 rebuildCaches &>kextcache_log.txt
 
 # If needed, remove duplicate entries
-if [[ $fixDupes == "yes" ]]; then
-	fixDupKextLog
-fi
+# if [[ $fixDupes == "yes" ]]; then
+# 	fixDupKextLog
+# fi
 
 # Dump clover files
 echo -e "Dumping clover files."
