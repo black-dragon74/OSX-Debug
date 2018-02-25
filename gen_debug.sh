@@ -78,10 +78,15 @@ function checkIOREG(){
 
 		# Tell user that values have been increased
 		timesIncremented=$(($timesIncremented + 1))
-		echo -e "Increased delay by x$timesIncremented times. Retrying..."
+		if [[ $timesIncremented -gt 3 ]]; then
+			echo "IOREG dump has failed 3 times. Dumping generic IOREG report instead."
+			ioreg -f -l &>$outDir/generic_ioreg.txt
+		else
+			echo -e "Increased delay by x$timesIncremented times. Retrying..."
 
-		# Dump again
-		dumpIOREG
+			# Dump again
+			dumpIOREG
+		fi
 	else
 		echo "IOREG Verified as $outDir/$hostName.ioreg"
 	fi
