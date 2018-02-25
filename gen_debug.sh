@@ -7,7 +7,7 @@
 # EFI Mount script credits to RehabMan @tonymacx86
 
 # Declare variables to be used in this script
-scriptVersion=3.8
+scriptVersion=3.9
 scriptDir=~/Library/debugNk
 dbgURL="https://raw.githubusercontent.com/black-dragon74/OSX-Debug/master/gen_debug.sh"
 efiScript=$scriptDir/mount_efi.sh
@@ -227,6 +227,10 @@ function dumpKextstat(){
 	echo -e "END DUMP FOR TRIM STATUS."
 	echo -e " "
 	echo -e " "
+}
+
+function dumpAllKextstat(){
+	kextstat
 }
 
 # Add function to dump system information, requested by Jake
@@ -599,6 +603,7 @@ dumpKernelLog &> kernel_log.txt
 echo -e "Dumping kextstat."
 touch kextstat_log.txt
 dumpKextstat &>kextstat_log.txt
+dumpAllKextstat &>kextstat_all_log.txt
 
 # Dump kextcache
 echo -e "Dumping kextcache"
