@@ -30,6 +30,12 @@ hostName=$(hostname | sed 's/.local//g')
 genSysDump="no"
 fixDupes="no"
 
+# Variables used in dumpIOREG (Dynamic Approach)
+IODelayAfterQuit=1 # Delay after quitting IOReg
+IODelayAfterActi=4 # Delay after passing activate command
+IODelayForOneSec=1 # General delay for one second
+IODelayForThreeS=3 # Delay for three seconds
+
 # Declare functions to be used in this script.
 function printHeader(){
 	clear
@@ -55,74 +61,56 @@ function checkConn(){
 	fi
 }
 
+function IOIncrement(){
+	IODelayAfterQuit=$(($IODelayAfterQuit + 6))
+	IODelayAfterActi=$(($IODelayAfterActi + 5))
+	IODelayForOneSec=$(($IODelayForOneSec + 4))
+	IODelayForThreeS=$(($IODelayForThreeS + 3))
+}
+
+timesIncremented=1
 function checkIOREG(){
 	if [[ ! -e $outDir/$hostName.ioreg ]]; then
-		echo "IOREG dump failed. Retrying" && sleep 0.5
-		dumpIOREGv2
+		echo "IOREG dump failed. Retrying by increasing delays..." && sleep 0.5
+
+		# Increment Delays
+		IOIncrement
+
+		# Tell user that values have been increased
+		timesIncremented=$(($timesIncremented + 1))
+		echo -e "Increased delay by x$timesIncremented times. Retrying..."
+
+		# Dump again
+		dumpIOREG
 	else
 		echo "IOREG Verified as $outDir/$hostName.ioreg"
 	fi
-}
-
-function dumpIOREGv2(){
-	echo "Increased delay x2 for IOREG dump. This will take a while...(33 sec)"
-	# Credits black-dragon74
-	osascript >/dev/null 2>&1 <<-EOF
-		quit application "IORegistryExplorer"
-		delay 2
-
-		activate application "IORegistryExplorer"
-		delay 8
-		tell application "System Events"
-			tell process "IORegistryExplorer"
-				keystroke "s" using {command down}
-				delay 2
-				keystroke "g" using {command down, shift down}
-				delay 1
-				keystroke "$outDir"
-				delay 2
-				key code 36
-				delay 4
-				keystroke "$hostName"
-				delay 2
-				key code 36
-				delay 6
-				keystroke "s" using {command down}
-				delay 6
-			end tell
-		end tell
-
-		quit application "IORegistryExplorer"
-	EOF
-
-	# Check for successful dump
-	checkIOREG
 }
 
 function dumpIOREG(){
 	# Credits black-dragon74
 	osascript >/dev/null 2>&1 <<-EOF
 		quit application "IORegistryExplorer"
-		delay 1
+		delay "$IODelayAfterQuit"
 
 		activate application "IORegistryExplorer"
-		delay 4
+		delay "$IODelayAfterActi"
 		tell application "System Events"
 			tell process "IORegistryExplorer"
 				keystroke "s" using {command down}
-				delay 1
+				delay "$IODelayForOneSec"
 				keystroke "g" using {command down, shift down}
-				delay 0.5
+				delay "$IODelayForOneSec"
 				keystroke "$outDir"
-				delay 1
+				delay "$IODelayForOneSec"
 				key code 36
-				delay 2
+				delay "$IODelayForThreeS"
 				keystroke "$hostName"
-				delay 1
+				delay "$IODelayForOneSec"
 				key code 36
-				delay 3
+				delay "$IODelayForThreeS"
 				keystroke "s" using {command down}
-				delay 3
+				delay "$IODelayForThreeS"
 			end tell
 		end tell
 
