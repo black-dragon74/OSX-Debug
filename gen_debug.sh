@@ -7,7 +7,7 @@
 # EFI Mount script credits to RehabMan @tonymacx86
 
 # Declare variables to be used in this script
-scriptVersion=3.7
+scriptVersion=3.8
 scriptDir=~/Library/debugNk
 dbgURL="https://raw.githubusercontent.com/black-dragon74/OSX-Debug/master/gen_debug.sh"
 efiScript=$scriptDir/mount_efi.sh
@@ -315,7 +315,28 @@ if [[ $1 = "-v" ]]; then
 	exit
 fi
 
-# Welcome, Here wo go!
+# Tell them noobs to hold their horses for a while
+clear
+echo "Please don't touch your computer until the program is finished."
+read -p "Do we agree? [Yy/Nn]: " contResp
+case $contResp in
+	[yY]* )
+		# Continue
+		echo "Cool!" && sleep 0.4
+		;;
+	[nN]* )
+		# Exit
+		echo "Alrighty! See ya sometime soon."
+		exit 1
+		;;	
+	* )
+		# Exit
+		echo "Invalid option selected. Aborting..."
+		exit 1
+		;;
+esac
+
+# Welcome, Here we go!
 printHeader
 
 # Update if new version is found on the remote
