@@ -7,7 +7,7 @@
 # EFI Mount script credits to RehabMan @tonymacx86
 
 # Declare variables to be used in this script
-scriptVersion=3.9
+scriptVersion=4.0
 scriptDir=~/Library/debugNk
 dbgURL="https://raw.githubusercontent.com/black-dragon74/OSX-Debug/master/gen_debug.sh"
 efiScript=$scriptDir/mount_efi.sh
@@ -619,19 +619,25 @@ rebuildCaches &>kextcache_log.txt
 echo -e "Dumping clover files."
 efiloc=$(sudo $efiScript)
 echo -e "Mounted EFI at $efiloc (credits RehabMan)"
-cp -prf "$efiloc/EFI/CLOVER" .
-echo -e "Removing theme dir."
-cd ./CLOVER && rm -rf them* &>/dev/null
-echo -e "Removing tools dir."
-rm -rf too* &>/dev/null
-echo -e "Masking your System IDs"
-$pledit -c "Set SMBIOS:SerialNumber $maskedVal" config.plist &>/dev/null
-$pledit -c "Set SMBIOS:BoardSerialNumber $maskedVal" config.plist &>/dev/null
-$pledit -c "Set SMBIOS:SmUUID $maskedVal" config.plist &>/dev/null
-$pledit -c "Set RtVariables:ROM $maskedVal" config.plist &>/dev/null
-$pledit -c "Set RtVariables:MLB $maskedVal" config.plist &>/dev/null
-cd ..
-echo -e "Dumped CLOVER files."
+if [[ -e "$efiloc/EFI/CLOVER" ]]; then
+	cp -prf "$efiloc/EFI/CLOVER" .
+	echo -e "Removing theme dir."
+	cd ./CLOVER && rm -rf them* &>/dev/null
+	echo -e "Removing tools dir."
+	rm -rf too* &>/dev/null
+	echo -e "Masking your System IDs"
+	$pledit -c "Set SMBIOS:SerialNumber $maskedVal" config.plist &>/dev/null
+	$pledit -c "Set SMBIOS:BoardSerialNumber $maskedVal" config.plist &>/dev/null
+	$pledit -c "Set SMBIOS:SmUUID $maskedVal" config.plist &>/dev/null
+	$pledit -c "Set RtVariables:ROM $maskedVal" config.plist &>/dev/null
+	$pledit -c "Set RtVariables:MLB $maskedVal" config.plist &>/dev/null
+	cd ..
+	echo -e "Dumped CLOVER files."
+else
+	echo "CLOVER not installed. Skipping..."
+	touch clovernotinstalled $outDir
+fi
+
 echo -e "Unmounted $efiloc"
 diskutil unmount $efiloc &>/dev/null
 
