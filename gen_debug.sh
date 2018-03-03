@@ -29,6 +29,8 @@ sysPfl=/usr/sbin/system_profiler
 hostName=$(hostname | sed 's/.local//g')
 genSysDump="no"
 fixDupes="no"
+hasChamel=""
+hasClover=""
 
 # Variables used in dumpIOREG (Dynamic Approach)
 IODelayAfterQuit=1 # Delay after quitting IOReg
@@ -635,7 +637,24 @@ if [[ -e "$efiloc/EFI/CLOVER" ]]; then
 	echo -e "Dumped CLOVER files."
 else
 	echo "CLOVER not installed. Skipping..."
+	hasClover="no"
+	hasChamel="maybe"
 	touch clovernotinstalled $outDir
+fi
+
+if [[ $hasChamel == "maybe" ]]; then
+	if [[ -e "/Extra/org.chameleon.Boot.plist" ]]; then
+		echo "Chameleon or similar bootloader found.."
+		echo "Dumping Chameleon files...."
+		cp -prf "/Extra" .
+		rm -rf ./Extra/EDP &>/dev/null
+	else
+		hasChamel="no"
+	fi
+fi
+
+if [[ $hasChamel="no" && $hasClover="no" ]]; then
+	echo "No bootloader installation found. Maybe user is booting from USB."
 fi
 
 echo -e "Unmounted $efiloc"
