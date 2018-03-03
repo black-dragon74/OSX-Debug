@@ -7,7 +7,7 @@
 # EFI Mount script credits to RehabMan @tonymacx86
 
 # Declare variables to be used in this script
-scriptVersion=4.0
+scriptVersion=4.1
 scriptDir=~/Library/debugNk
 dbgURL="https://raw.githubusercontent.com/black-dragon74/OSX-Debug/master/gen_debug.sh"
 efiScript=$scriptDir/mount_efi.sh
@@ -653,7 +653,7 @@ if [[ $hasChamel == "maybe" ]]; then
 	fi
 fi
 
-if [[ $hasChamel== "no" && $hasClover== "no" ]]; then
+if [[ $hasChamel == "no" && $hasClover == "no" ]]; then
 	echo "No bootloader installation found. Maybe user is booting from USB."
 fi
 
