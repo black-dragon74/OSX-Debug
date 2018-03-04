@@ -7,7 +7,7 @@
 # EFI Mount script credits to RehabMan @tonymacx86
 
 # Declare variables to be used in this script
-scriptVersion=4.1
+scriptVersion=4.2
 scriptDir=~/Library/debugNk
 dbgURL="https://raw.githubusercontent.com/black-dragon74/OSX-Debug/master/gen_debug.sh"
 efiScript=$scriptDir/mount_efi.sh
@@ -31,6 +31,8 @@ genSysDump="no"
 fixDupes="no"
 hasChamel=""
 hasClover=""
+epochFor1Day=86400
+veriStat=""
 
 # Variables used in dumpIOREG (Dynamic Approach)
 IODelayAfterQuit=1 # Delay after quitting IOReg
@@ -280,6 +282,33 @@ function dumpPanicLog(){
 		for f in $(ls /Library/Logs/DiagnosticReports | grep "panic" | grep -i "kernel"); do
 			cp /Library/Logs/DiagnosticReports/$f $panicDir
 		done
+	fi
+}
+
+function verifyModDate(){
+	# Get current date
+	dateNow="$(date +%m\ %d\ %Y | awk '{ for (i=NF; i>1; i--) printf("%s ",$i); print $1; }' | sed 's/\ /-/g')"
+
+	# Get file's modification date
+	dateMod="$(GetFileInfo -m "$1" | awk '{print $1}' | sed 's/\//\ /g' | awk '{ for (i=NF; i>1; i--) printf("%s ",$i); print $1; }' | sed 's/\ /-/g')"
+
+	# Convert current date to epoch
+	dateNowEpoch="$(date -j -f "%Y-%d-%m" "$dateNow" +%s)"
+
+	# Convert modification date to epoch
+	dateModEpoch="$(date -j -f "%Y-%d-%m" "$dateMod" +%s)"
+
+	# Calculate Difference
+	dateDiff="$(($dateNowEpoch - $dateModEpoch))"
+
+	# Now we compare
+	if [[ "$dateNowEpoch" == "$dateModEpoch" || $dateDiff == $epochFor1Day ]]; then
+		echo "ACPI files were dumped recently. Great!"
+		veriStat="true"
+	elif [[ $dateDiff -gt $epochFor1Day ]]; then
+		echo "ACPI files were dumped more than 1 day ago!"
+		echo "Reboot and press F4 at CLOVER boot screen to dump new files."
+		veriStat="false"
 	fi
 }
 
@@ -622,6 +651,24 @@ echo -e "Dumping clover files."
 efiloc=$(sudo $efiScript)
 echo -e "Mounted EFI at $efiloc (credits RehabMan)"
 if [[ -e "$efiloc/EFI/CLOVER" ]]; then
+	# Check for DSDT in origin folder
+	if [[ ! -e "$efiloc/EFI/CLOVER/ACPI/origin/DSDT.aml" ]]; then
+		echo "You forgot to press F4 at clover boot screen."
+		echo "Please reboot and press F4 to dump ACPI origin files."
+		rm -rf $outDir
+		echo -e "Unmounted $efiloc"
+		diskutil unmount $efiloc &>/dev/null
+		exit 1
+	else
+		verifyModDate "$efiloc/EFI/CLOVER/ACPI/origin/DSDT.aml"
+		if [[ $veriStat == "false" ]]; then
+			rm -rf $outDir
+			echo -e "Unmounted $efiloc"
+			diskutil unmount $efiloc &>/dev/null
+			exit 1
+		fi
+	fi
+
 	cp -prf "$efiloc/EFI/CLOVER" .
 	echo -e "Removing theme dir."
 	cd ./CLOVER && rm -rf them* &>/dev/null
