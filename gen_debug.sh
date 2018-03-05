@@ -7,7 +7,7 @@
 # EFI Mount script credits to RehabMan @tonymacx86
 
 # Declare variables to be used in this script
-scriptVersion=4.2
+scriptVersion=4.2.2
 scriptDir=~/Library/debugNk
 dbgURL="https://raw.githubusercontent.com/black-dragon74/OSX-Debug/master/gen_debug.sh"
 efiScript=$scriptDir/mount_efi.sh
@@ -46,7 +46,7 @@ function printHeader(){
 	echo -e "====================================="
 	echo -e "+   macOS DEBUG REPORT GENERATOR    +"
 	echo -e "-------------------------------------"
-	echo -e "+       SCRIPT VERSION $scriptVersion          +"
+	echo -e "+       SCRIPT VERSION $scriptVersion        +"
 	echo -e "====================================="
 	echo -e " " && sleep 0.5
 	echo -e "====================================="
@@ -465,9 +465,9 @@ fi
 if [ -e $regExplorer ];
 	then
 	echo -e "IORegistryExplorer found at $regExplorer"
-	echo "Verifying if the version is 2.1"
-	if [[  "$($pledit -c "Print CFBundleVersion" $regExplorer/Contents/Info.plist)" = "2.1" ]]; then
-		echo "Verified version 2.1"
+	echo "Verifying if correct version of IORegistryExplorer is installed."
+	if [[  -e $regExplorer/isVerified ]]; then
+		echo "Your version of IORegistryExplorer.app passed the check. Good to go!"
 		checkForConnAhead=1
 	else
 		echo "This version of IORegistryExplorer is not recommended."
@@ -499,6 +499,12 @@ if [ -e $regExplorer ];
 				then
 				echo -e "File Verified. Installing."
 				unzip -o $scriptDir/IORegistryExplorer.zip -d /Applications/ &>/dev/null
+				# Add our little hack for verification
+				touch $regExplorer/isVerified
+				if [[ ! -e $regExplorer/isVerified ]]; then
+					# Root access is required I guess.
+					sudo touch $regExplorer/isVerified
+				fi
 				echo -e "Installed IORegistryExplorer at $regExplorer"
 				rm -f $scriptDir/IORegistryExplorer.zip
 				rm -rf /Applications/__MACOSX &>/dev/null
@@ -534,6 +540,12 @@ else
 			then
 			echo -e "File Verified. Installing."
 			unzip -o $scriptDir/IORegistryExplorer.zip -d /Applications/ &>/dev/null
+			# Add our little hack for verification
+			touch $regExplorer/isVerified
+			if [[ ! -e $regExplorer/isVerified ]]; then
+				# Root access is required I guess.
+				sudo touch $regExplorer/isVerified
+			fi
 			echo -e "Installed IORegistryExplorer at $regExplorer"
 			rm -f $scriptDir/IORegistryExplorer.zip
 			rm -rf /Applications/__MACOSX &>/dev/null
