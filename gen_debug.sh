@@ -7,7 +7,7 @@
 # EFI Mount script credits to RehabMan @tonymacx86
 
 # Declare variables to be used in this script
-scriptVersion=4.2.1
+scriptVersion=4.2
 scriptDir=~/Library/debugNk
 dbgURL="https://raw.githubusercontent.com/black-dragon74/OSX-Debug/master/gen_debug.sh"
 efiScript=$scriptDir/mount_efi.sh
@@ -465,10 +465,9 @@ fi
 if [ -e $regExplorer ];
 	then
 	echo -e "IORegistryExplorer found at $regExplorer"
-	echo "Verifying IORegistryExplorer to be the correct version..."
-	if [[ $(echo $(md5 -s $regExplorer) | sed 's/.*= //g') = 77998b4b623197527dd915e1e9629c69 ]];
-		then
-		echo "IORegistryExplorer passed the check and is good to go!"
+	echo "Verifying if the version is 2.1"
+	if [[  "$($pledit -c "Print CFBundleVersion" $regExplorer/Contents/Info.plist)" = "2.1" ]]; then
+		echo "Verified version 2.1"
 		checkForConnAhead=1
 	else
 		echo "This version of IORegistryExplorer is not recommended."
