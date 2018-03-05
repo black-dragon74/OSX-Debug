@@ -610,6 +610,24 @@ else
 	mkdir -p $outDir
 fi
 
+# Now we listen for interrupts and then cleanup in case we need to exit prematurely.
+trap '{ 
+
+read -p "Hey, you pressed Ctrl+C. Quit?[yY/nN]: " quitResp ;
+case $quitResp in
+	[yY]* )
+		echo "Umm.. Okay. Cleaning up and exiting, NOW!"
+		rm -rf $outDir
+		exit 1
+		;;
+	* )
+		# Continue
+		echo "Ah! Okay. Continuing then.." 
+		;;
+esac
+
+}' INT
+
 # Change active directory to $outDir
 cd $outDir
 echo -e "Data will be dumped at $outDir"
