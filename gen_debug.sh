@@ -7,7 +7,7 @@
 # EFI Mount script credits to RehabMan @tonymacx86
 
 # Declare variables to be used in this script
-scriptVersion=4.2.2
+scriptVersion=4.2.3
 scriptDir=~/Library/debugNk
 dbgURL="https://raw.githubusercontent.com/black-dragon74/OSX-Debug/master/gen_debug.sh"
 efiScript=$scriptDir/mount_efi.sh
@@ -102,7 +102,7 @@ function dumpIOREG(){
 		quit application "IORegistryExplorer"
 		delay "$IODelayAfterQuit"
 
-		activate application "IORegistryExplorer"
+		activate application "Applications:IORegistryExplorer.app"
 		delay "$IODelayAfterActi"
 		tell application "System Events"
 			tell process "IORegistryExplorer"
