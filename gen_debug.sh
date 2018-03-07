@@ -7,7 +7,7 @@
 # EFI Mount script credits to RehabMan @tonymacx86
 
 # Declare variables to be used in this script
-scriptVersion=4.2.3
+scriptVersion=4.2.4
 scriptDir=~/Library/debugNk
 dbgURL="https://raw.githubusercontent.com/black-dragon74/OSX-Debug/master/gen_debug.sh"
 efiScript=$scriptDir/mount_efi.sh
@@ -219,9 +219,16 @@ function dumpKextstat(){
 	echo -e " "
 
 
-	echo -e "ASSERTIONS DUMP :-"
+	echo -e "PMSET DUMP :-"
+	pmset -g 
+	echo -e "END DUMP FOR PMSET"
+	echo -e " "
+	echo -e " "
+
+
+	echo -e "PMSET ASSERTIONS DUMP :-"
 	pmset -g assertions
-	echo -e "END DUMP FOR ASSERTIONS."
+	echo -e "END DUMP FOR PMSET ASSERTIONS."
 	echo -e " "
 	echo -e " "
 
