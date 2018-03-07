@@ -309,7 +309,7 @@ function verifyModDate(){
 	dateDiff="$(($dateNowEpoch - $dateModEpoch))"
 
 	# Now we compare
-	if [[ "$dateNowEpoch" == "$dateModEpoch" || $dateDiff == $epochFor1Day ]]; then
+	if [[ "$dateNowEpoch" == "$dateModEpoch" || $dateDiff -le $epochFor1Day ]]; then
 		echo "ACPI files were dumped recently. Great!"
 		veriStat="true"
 	elif [[ $dateDiff -gt $epochFor1Day ]]; then
