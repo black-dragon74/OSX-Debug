@@ -7,7 +7,7 @@
 # EFI Mount script credits to RehabMan @tonymacx86
 
 # Declare variables to be used in this script
-scriptVersion=4.2.4
+scriptVersion=4.2.5
 scriptDir=~/Library/debugNk
 dbgURL="https://raw.githubusercontent.com/black-dragon74/OSX-Debug/master/gen_debug.sh"
 efiScript=$scriptDir/mount_efi.sh
@@ -310,11 +310,8 @@ function verifyModDate(){
 
 	# Now we compare
 	if [[ "$dateNowEpoch" == "$dateModEpoch" || $dateDiff -le $epochFor1Day ]]; then
-		echo "ACPI files were dumped recently. Great!"
 		veriStat="true"
 	elif [[ $dateDiff -gt $epochFor1Day ]]; then
-		echo "ACPI files were dumped more than 1 day ago!"
-		echo "Reboot and press F4 at CLOVER boot screen to dump new files."
 		veriStat="false"
 	fi
 }
@@ -334,9 +331,9 @@ function updateIfNew(){
 			chmod a+x ./ndbg
 			reVer=$(./ndbg -v)
 			if [[ "$reVer" != $scriptVersion ]]; then
-				echo "Hey! Before we proceed, I found a new version of the script." && sleep 0.5
+				echo "Hey "$(whoami)"! Before we proceed, I found a new version of the script." && sleep 0.5
 				echo "You are running $scriptVersion and new version is $reVer" && sleep 0.5
-				read -p "Shall I update it now?[y/n]: " updAns
+				read -p "Shall I update the program now?[y/n]: " updAns
 				case $updAns in
 					[yY]* )
 						# Update
@@ -694,29 +691,56 @@ rebuildCaches &>kextcache_log.txt
 echo -e "Dumping clover files."
 efiloc=$(sudo $efiScript)
 echo -e "Mounted EFI at $efiloc (credits RehabMan)"
+echo "Verifying your EFI files..."
 if [[ -e "$efiloc/EFI/CLOVER" ]]; then
 	# Check for DSDT in origin folder
 	if [[ ! -e "$efiloc/EFI/CLOVER/ACPI/origin/DSDT.aml" ]]; then
-		echo "You forgot to press F4 at clover boot screen."
-		echo "Please reboot and press F4 to dump ACPI origin files."
+		echo "You forgot to press F4 or Fn+F4 at clover boot screen."
+		echo "Please reboot and press F4 or Fn+F4 to dump ACPI origin files."
+		rm -rf $outDir
+		echo -e "Unmounted $efiloc"
+		diskutil unmount $efiloc &>/dev/null
+		exit 1
+	elif [[ ! -e "$efiloc/EFI/CLOVER/misc/preboot.log" ]]; then
+		echo "You forgot to press F2 or Fn+F2 at clover boot screen."
+		echo "Please reboot and press F2 or Fn+F2 to dump preboot log."
 		rm -rf $outDir
 		echo -e "Unmounted $efiloc"
 		diskutil unmount $efiloc &>/dev/null
 		exit 1
 	else
+		# Verify that ACPI origin files are not older than 1 day.
 		verifyModDate "$efiloc/EFI/CLOVER/ACPI/origin/DSDT.aml"
 		if [[ $veriStat == "false" ]]; then
+			echo "ACPI files were dumped more than 1 day ago!"
+			echo "Reboot and press F4 or Fn+F4 at CLOVER boot screen to dump new files."
 			rm -rf $outDir
 			echo -e "Unmounted $efiloc"
 			diskutil unmount $efiloc &>/dev/null
 			exit 1
+		else
+			echo "ACPI files were dumped recently. Great!"
+		fi
+
+		# Verify that preboot log is not older than 1 day
+		verifyModDate "$efiloc/EFI/CLOVER/misc/preboot.log"
+		if [[ $veriStat == "false" ]]; then
+			echo "Preboot log was dumped more than 1 day ago!"
+			echo "Reboot and press F2 or Fn+F2 at CLOVER boot screen to dump new log."
+			rm -rf $outDir
+			echo -e "Unmounted $efiloc"
+			diskutil unmount $efiloc &>/dev/null
+			exit 1
+		else
+			echo "Preboot log was dumped recently. Great!" 
 		fi
 	fi
 
+	echo "All checks passed. Copying CLOVER files..."
 	cp -prf "$efiloc/EFI/CLOVER" .
-	echo -e "Removing theme dir."
+	echo -e "Removing theme dir from the dump."
 	cd ./CLOVER && rm -rf them* &>/dev/null
-	echo -e "Removing tools dir."
+	echo -e "Removing tools dir from the dump."
 	rm -rf too* &>/dev/null
 	echo -e "Masking your System IDs"
 	$pledit -c "Set SMBIOS:SerialNumber $maskedVal" config.plist &>/dev/null
@@ -725,7 +749,7 @@ if [[ -e "$efiloc/EFI/CLOVER" ]]; then
 	$pledit -c "Set RtVariables:ROM $maskedVal" config.plist &>/dev/null
 	$pledit -c "Set RtVariables:MLB $maskedVal" config.plist &>/dev/null
 	cd ..
-	echo -e "Dumped CLOVER files."
+	echo -e "Dump of CLOVER files completed successfully."
 else
 	echo "CLOVER not installed. Skipping..."
 	hasClover="no"
