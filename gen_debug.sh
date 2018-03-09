@@ -351,8 +351,10 @@ function updateIfNew(){
 						echo "It is recommended to have the latest version. Still, you rule."
 						echo "Proceeding......"
 						echo
+						rm ./ndbg &>/dev/null
 				esac
 			fi
+			rm ./ndbg &>/dev/null
 		fi
 	fi
 }
