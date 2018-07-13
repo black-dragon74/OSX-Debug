@@ -7,22 +7,23 @@
 # EFI Mount script credits to RehabMan @tonymacx86
 
 # Declare variables to be used in this script
-scriptVersion=4.2.6
-scriptDir=~/Library/debugNk
+scriptVersion=4.2.7
+homeDir="$(echo $HOME)"
+scriptDir="$homeDir/Library/debugNk"
 dbgURL="https://raw.githubusercontent.com/black-dragon74/OSX-Debug/master/gen_debug.sh"
-efiScript=$scriptDir/mount_efi.sh
+efiScript="$scriptDir/mount_efi.sh"
 pledit=/usr/libexec/PlistBuddy
 efiScriptURL="https://raw.githubusercontent.com/black-dragon74/OSX-Debug/master/mount_efi.sh"
 regExplorer=/Applications/IORegistryExplorer.app
 regExplorerURL="https://raw.githubusercontent.com/black-dragon74/OSX-Debug/master/IORegistryExplorer.zip"
-patchmaticB=$scriptDir/patchmatic
+patchmaticB="$scriptDir/patchmatic"
 patchmaticBURL="https://raw.githubusercontent.com/black-dragon74/OSX-Debug/master/patchmatic"
 testURL="google.com"
 maskedVal="XX-MASKED-XX"
 checkForConnAhead=0
 randomNumber=$(echo $(( ( RANDOM )  + 12 )))
-outDir=~/Desktop/$randomNumber
-panicDir=$outDir/panic_logs
+outDir="$homeDir/Desktop/$randomNumber"
+panicDir="$outDir/panic_logs"
 zipFileName=debug_$randomNumber.zip
 efiloc="null"
 sysPfl=/usr/sbin/system_profiler
@@ -74,7 +75,7 @@ function IOIncrement(){
 
 timesIncremented=1
 function checkIOREG(){
-	if [[ ! -e $outDir/$hostName.ioreg ]]; then
+	if [[ ! -e "$outDir/$hostName.ioreg" ]]; then
 		echo "IOREG dump failed. Retrying by increasing delays..." && sleep 0.5
 
 		# Increment Delays
@@ -84,7 +85,7 @@ function checkIOREG(){
 		timesIncremented=$(($timesIncremented + 1))
 		if [[ $timesIncremented -gt 3 ]]; then
 			echo "IOREG dump has failed 3 times. Dumping generic IOREG report instead."
-			ioreg -f -l &>$outDir/generic_ioreg.txt
+			ioreg -f -l &>"$outDir/generic_ioreg.txt"
 		else
 			echo -e "Increased delay by x$timesIncremented times. Retrying..."
 
@@ -174,7 +175,7 @@ function rebuildCaches(){
 
 function fixDupKextLog(){
 	# Must be run after the kextcache log is generated
-	cd $outDir
+	cd "$outDir"
 	mv kextcache_log.txt kextcache_log_temp.txt
 	# Using sed as i love it, this can also be achieved using awk like: awk '{k=$8; $8=""} !a[$0]++{$8=k; print}' kextcache_log_temp.txt >>kextcache_log.txt
 	cat kextcache_log_temp.txt | sed -E -e 's/OSKext 0x[^[:space:]]+ /OSKext CONST /g' | sort | uniq | tail -r >>kextcache_log.txt
@@ -256,15 +257,15 @@ function genSystemRep(){
 		if [[ "$1" == "txt" ]]; then
 			# Generate report in .txt format
 			echo "Generating report in txt format as requested."
-			$sysPfl > $outDir/SysDump-$hostName.txt 2>/dev/null
+			$sysPfl > "$outDir/SysDump-$hostName.txt" 2>/dev/null
 		else
 			echo -e "Ignored invalid arg: $1\nGenerating report in spx format."
 			# Generate report in spx format
-			$sysPfl -xml > $outDir/SysDump-$hostName.spx 2>/dev/null
+			$sysPfl -xml > "$outDir/SysDump-$hostName.spx" 2>/dev/null
 		fi
 	else
 		# Generate report in spx format
-		$sysPfl -xml > $outDir/SysDump-$hostName.spx 2>/dev/null
+		$sysPfl -xml > "$outDir/SysDump-$hostName.spx" 2>/dev/null
 	fi
 }
 
@@ -272,7 +273,7 @@ function dumpBootLog(){
 	if [[ -z $(which bdmesg) ]]; then
 		echo "BDMESG not found. Unable to dump boot log."
 	else
-		bdmesg > $outDir/bootlog.txt 2>/dev/null
+		bdmesg > "$outDir/bootlog.txt" 2>/dev/null
 	fi
 }
 
@@ -325,7 +326,7 @@ function updateIfNew(){
 		then
 		echo "Hold on for a moment...."
 		# Get latest version
-		cd $scriptDir
+		cd "$scriptDir"
 		curl -o ndbg $dbgURL &>/dev/null
 		if [[ -e ./ndbg ]]; then
 			chmod a+x ./ndbg
@@ -392,7 +393,10 @@ printHeader
 
 # Update if new version is found on the remote
 if [[ $1 != "-u"* ]]; then
-	updateIfNew
+	# If script directory is not present then the user is running for the first time, no auto update this time.
+	if [[ -e $scriptDir ]]; then
+		updateIfNew
+	fi
 fi
 
 # Check for custom args
@@ -430,16 +434,16 @@ if [[ ! -z $arg ]]; then
 fi
 
 # Check if script directory exists else create it
-if [ -d $scriptDir ];
+if [[ -d $scriptDir ]];
 	then
 	echo -e "Found script data directory at $scriptDir"
 else
 	echo -e "Script data directory not present, creating it."
-	mkdir -p $scriptDir
+	mkdir -p "$scriptDir"
 fi
 
 # Check for mount EFI script
-if [ -e $efiScript ];
+if [[ -e "$efiScript" ]];
 	then
 	echo -e "EFI Mount Script (RehabMan) found. No need to download."
 	checkForConnAhead=1
@@ -450,20 +454,20 @@ else
 
 	# Stuffs to do in case internet connectivity is fine
 	echo -e "Downloading EFI Mount script"
-	curl -o $efiScript $efiScriptURL &>/dev/null
+	curl -o "$efiScript" $efiScriptURL &>/dev/null
 
 	# Check if the script is actually there
-	if [ -e $efiScript ];
+	if [[ -e "$efiScript" ]];
 		then
 		echo -e "Script downloaded. Verifying."
-		if [[ $(echo $(md5 $efiScript) | sed 's/.*= //g') = 9e104d2f7d1b0e70e36dffd8031de2c8 ]];
+		if [[ $(echo $(md5 "$efiScript") | sed 's/.*= //g') = 9e104d2f7d1b0e70e36dffd8031de2c8 ]];
 			then
 			echo -e "Script is verified."
 			echo -e "Setting permissions."
-			chmod a+x $efiScript
+			chmod a+x "$efiScript"
 		else
 			echo -e "Corrupted file is downloaded. Try again."
-			rm $efiScript
+			rm "$efiScript"
 			exit
 		fi
 	else
@@ -502,14 +506,14 @@ if [ -e $regExplorer ];
 		curl -o $scriptDir/IORegistryExplorer.zip $regExplorerURL &>/dev/null
 
 		# Check if the downloaded file exists
-		if [ -e $scriptDir/IORegistryExplorer.zip ];
+		if [[ -e "$scriptDir/IORegistryExplorer.zip" ]];
 			then
 			echo -e "Downloaded IORegistryExplorer."
 			echo -e "Verifying Downloaded file."
-			if [[ $(echo $(md5 $scriptDir/IORegistryExplorer.zip) | sed 's/.*= //g') = 494a39316ed52c0c73438a4755c4732a ]];
+			if [[ $(echo $(md5 "$scriptDir/IORegistryExplorer.zip") | sed 's/.*= //g') = 494a39316ed52c0c73438a4755c4732a ]];
 				then
 				echo -e "File Verified. Installing."
-				unzip -o $scriptDir/IORegistryExplorer.zip -d /Applications/ &>/dev/null
+				unzip -o "$scriptDir/IORegistryExplorer.zip" -d /Applications/ &>/dev/null
 				# Add our little hack for verification
 				touch $regExplorer/isVerified
 				if [[ ! -e $regExplorer/isVerified ]]; then
@@ -517,11 +521,11 @@ if [ -e $regExplorer ];
 					sudo touch $regExplorer/isVerified
 				fi
 				echo -e "Installed IORegistryExplorer at $regExplorer"
-				rm -f $scriptDir/IORegistryExplorer.zip
+				rm -f "$scriptDir/IORegistryExplorer.zip"
 				rm -rf /Applications/__MACOSX &>/dev/null
 			else
 				echo -e "Maybe a corrupted file is downloaded. Try again."
-				rm -f $scriptDir/IORegistryExplorer.zip
+				rm -f "$scriptDir/IORegistryExplorer.zip"
 				exit
 			fi
 		else
@@ -540,17 +544,17 @@ else
 
 	# Stuffs to do in case internet connectivity is fine
 	echo -e "Downloading IORegistryExplorer."
-	curl -o $scriptDir/IORegistryExplorer.zip $regExplorerURL &>/dev/null
+	curl -o "$scriptDir/IORegistryExplorer.zip" $regExplorerURL &>/dev/null
 
 	# Check if the downloaded file exists
-	if [ -e $scriptDir/IORegistryExplorer.zip ];
+	if [[ -e $scriptDir/IORegistryExplorer.zip ]];
 		then
 		echo -e "Downloaded IORegistryExplorer."
 		echo -e "Verifying Downloaded file."
-		if [[ $(echo $(md5 $scriptDir/IORegistryExplorer.zip) | sed 's/.*= //g') = 494a39316ed52c0c73438a4755c4732a ]];
+		if [[ $(echo $(md5 "$scriptDir/IORegistryExplorer.zip") | sed 's/.*= //g') = 494a39316ed52c0c73438a4755c4732a ]];
 			then
 			echo -e "File Verified. Installing."
-			unzip -o $scriptDir/IORegistryExplorer.zip -d /Applications/ &>/dev/null
+			unzip -o "$scriptDir/IORegistryExplorer.zip" -d /Applications/ &>/dev/null
 			# Add our little hack for verification
 			touch $regExplorer/isVerified
 			if [[ ! -e $regExplorer/isVerified ]]; then
@@ -558,11 +562,11 @@ else
 				sudo touch $regExplorer/isVerified
 			fi
 			echo -e "Installed IORegistryExplorer at $regExplorer"
-			rm -f $scriptDir/IORegistryExplorer.zip
+			rm -f "$scriptDir/IORegistryExplorer.zip"
 			rm -rf /Applications/__MACOSX &>/dev/null
 		else
 			echo -e "Maybe a corrupted file is downloaded. Try again."
-			rm -f $scriptDir/IORegistryExplorer.zip
+			rm -f "$scriptDir/IORegistryExplorer.zip"
 			exit
 		fi
 	else
@@ -576,7 +580,7 @@ fi
 if [[ $(which patchmatic) = "" ]];
 	then 
 	echo -e "Patchmatic not installed. Checking in DATA directory."
-	if [ ! -e $patchmaticB ]; 
+	if [[ ! -e $patchmaticB ]]; 
 		then
 		echo -e "Patchmatic not found in data directory."
 		if [ $checkForConnAhead -eq 1 ];
@@ -586,20 +590,20 @@ if [[ $(which patchmatic) = "" ]];
 
 		# Stuffs to do in case internet connectivity is fine
 		echo -e "Downloading Patchmatic."
-		curl -o $patchmaticB $patchmaticBURL &>/dev/null
+		curl -o "$patchmaticB" $patchmaticBURL &>/dev/null
 
 		# Check integrity of downloaded file.
-		if [ -e $patchmaticB ];
+		if [[ -e $"patchmaticB" ]];
 			then
 			echo -e "Downloaded Patchmatic."
 			echo -e "Verifying downloaded file."
-			if [[ $(echo $(md5 $patchmaticB) | sed 's/.*= //g') = a295cf066a74191a36395bbec4b5d4a4 ]];
+			if [[ $(echo $(md5 "$patchmaticB") | sed 's/.*= //g') = a295cf066a74191a36395bbec4b5d4a4 ]];
 				then
 				echo -e "File verified."
 				echo -e "It resides at $patchmaticB"
 			else
 				echo -e "Verification failed. Try again."
-				rm -f $patchmaticB
+				rm -f $"patchmaticB"
 				exit
 			fi	
 		fi
@@ -614,11 +618,11 @@ else
 fi
 
 # Start dumping the data, start by creating dirs
-if [ -e $outDir ];
+if [[ -e "$outDir" ]];
 	then
-	rm -rf $outDir
+	rm -rf "$outDir"
 else
-	mkdir -p $outDir
+	mkdir -p "$outDir"
 fi
 
 # Now we listen for interrupts and then cleanup in case we need to exit prematurely.
@@ -640,7 +644,7 @@ esac
 }' INT
 
 # Change active directory to $outDir
-cd $outDir
+cd "$outDir"
 echo -e "Data will be dumped at $outDir"
 
 # Request root access
@@ -655,8 +659,8 @@ fi
 echo -e "Dumping loaded ACPI tables."
 mkdir patchmatic_extraction
 cd ./patchmatic_extraction
-sudo chmod a+x $patchmaticB
-$patchmaticB -extract
+sudo chmod a+x "$patchmaticB"
+"$patchmaticB" -extract
 cd ..
 echo -e "Dumped loaded ACPI tables."
 
@@ -689,7 +693,7 @@ rebuildCaches &>kextcache_log.txt
 
 # Dump clover files
 echo -e "Dumping clover files."
-efiloc=$(sudo $efiScript)
+efiloc="$(sudo "$efiScript")"
 echo -e "Mounted EFI at $efiloc (credits RehabMan)"
 echo "Verifying your EFI files..."
 dsdtAgeVerified="false";
@@ -757,7 +761,7 @@ else
 	echo "CLOVER not installed. Skipping..."
 	hasClover="no"
 	hasChamel="maybe"
-	touch clovernotinstalled $outDir
+	touch clovernotinstalled "$outDir"
 fi
 
 if [[ $hasChamel == "maybe" ]]; then
@@ -800,13 +804,13 @@ echo "Dumping NVRAM values..."
 dumpNVRAM > nvram.plist
 
 # Zip all the files
-cd $outDir
+cd "$outDir"
 echo -e "Zipping all the files"
 zip -r $zipFileName * &>/dev/null
 echo -e "Zipped files at: $outDir/debug_$randomNumber.zip"
 
 # Remove unzipped files
-cd $outDir
+cd "$outDir"
 shopt -s extglob
 rm -rf -- !(debug_*)
 
@@ -814,7 +818,7 @@ rm -rf -- !(debug_*)
 read -p "Dump complete. Open $outDir?(Yy/Nn) " readOut
 case $readOut in
 	[yY]|[yY][eE][sS] )
-		open $outDir
+		open "$outDir"
 		;;
 	[nN]|[nN][oO] )
 		echo -e "Okay. You can open it manually."
