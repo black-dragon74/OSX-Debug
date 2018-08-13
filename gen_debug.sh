@@ -7,7 +7,7 @@
 # EFI Mount script credits to RehabMan @tonymacx86
 
 # Declare variables to be used in this script
-scriptVersion=4.2.7
+scriptVersion=4.2.8
 homeDir="$(echo $HOME)"
 scriptDir="$homeDir/Library/debugNk"
 dbgURL="https://raw.githubusercontent.com/black-dragon74/OSX-Debug/master/gen_debug.sh"
@@ -664,33 +664,6 @@ sudo chmod a+x "$patchmaticB"
 cd ..
 echo -e "Dumped loaded ACPI tables."
 
-# Dumping system logs
-echo -e "Dumping System log."
-cp /var/log/system.log .
-
-# Dump kernel panics (if exists)
-dumpPanicLog
-
-# Dumping kernel log
-echo -e "Dumping kernel log."
-dumpKernelLog &> kernel_log.txt
-
-# Dumping kextstat
-echo -e "Dumping kextstat."
-touch kextstat_log.txt
-dumpKextstat &>kextstat_log.txt
-dumpAllKextstat &>kextstat_all_log.txt
-
-# Dump kextcache
-echo -e "Dumping kextcache"
-touch kextcache_log.txt
-rebuildCaches &>kextcache_log.txt
-
-# If needed, remove duplicate entries
-# if [[ $fixDupes == "yes" ]]; then
-# 	fixDupKextLog
-# fi
-
 # Dump clover files
 echo -e "Dumping clover files."
 efiloc="$(sudo "$efiScript")"
@@ -781,6 +754,33 @@ fi
 
 echo -e "Unmounted $efiloc"
 diskutil unmount $efiloc &>/dev/null
+
+# Dumping system logs
+echo -e "Dumping System log."
+cp /var/log/system.log .
+
+# Dump kernel panics (if exists)
+dumpPanicLog
+
+# Dumping kernel log
+echo -e "Dumping kernel log."
+dumpKernelLog &> kernel_log.txt
+
+# Dumping kextstat
+echo -e "Dumping kextstat."
+touch kextstat_log.txt
+dumpKextstat &>kextstat_log.txt
+dumpAllKextstat &>kextstat_all_log.txt
+
+# Dump kextcache
+echo -e "Dumping kextcache"
+touch kextcache_log.txt
+rebuildCaches &>kextcache_log.txt
+
+# If needed, remove duplicate entries
+# if [[ $fixDupes == "yes" ]]; then
+# 	fixDupKextLog
+# fi
 
 # Dump IOREG
 echo -e "Dumping IOREG."
