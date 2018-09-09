@@ -729,6 +729,7 @@ if [[ -e "$efiloc/EFI/CLOVER" ]]; then
 	$pledit -c "Set RtVariables:ROM $maskedVal" config.plist &>/dev/null
 	$pledit -c "Set RtVariables:MLB $maskedVal" config.plist &>/dev/null
 	rm -rf ./CLOVER/ACPI/origin/MSDM* &>/dev/null
+	rm -rf ./CLOVER/ACPI/origin/SLIC* &>/dev/null
 	cd ..
 	echo -e "Dump of CLOVER files completed successfully."
 else
