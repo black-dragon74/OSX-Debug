@@ -7,7 +7,7 @@
 # EFI Mount script credits to RehabMan @tonymacx86
 
 # Declare variables to be used in this script
-scriptVersion=4.2.9
+scriptVersion=4.3
 homeDir="$(echo $HOME)"
 scriptDir="$homeDir/Library/debugNk"
 dbgURL="https://raw.githubusercontent.com/black-dragon74/OSX-Debug/master/gen_debug.sh"
@@ -728,6 +728,7 @@ if [[ -e "$efiloc/EFI/CLOVER" ]]; then
 	$pledit -c "Set SMBIOS:SmUUID $maskedVal" config.plist &>/dev/null
 	$pledit -c "Set RtVariables:ROM $maskedVal" config.plist &>/dev/null
 	$pledit -c "Set RtVariables:MLB $maskedVal" config.plist &>/dev/null
+	rm -rf ./CLOVER/ACPI/origin/MSDM* &>/dev/null
 	cd ..
 	echo -e "Dump of CLOVER files completed successfully."
 else
