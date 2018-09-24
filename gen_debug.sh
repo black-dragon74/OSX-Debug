@@ -752,6 +752,7 @@ fi
 
 if [[ $hasChamel == "no" && $hasClover == "no" ]]; then
 	echo "No bootloader installation found. Maybe user is booting from USB."
+	touch noBootLoaderInstalled
 fi
 
 echo -e "Unmounted $efiloc"
