@@ -7,7 +7,7 @@
 # EFI Mount script credits to RehabMan @tonymacx86
 
 # Declare variables to be used in this script
-scriptVersion=4.3.0
+scriptVersion=4.3.1
 homeDir="$(echo $HOME)"
 scriptDir="$homeDir/Library/debugNk"
 dbgURL="https://raw.githubusercontent.com/black-dragon74/OSX-Debug/master/gen_debug.sh"
@@ -294,17 +294,11 @@ function dumpPanicLog(){
 }
 
 function verifyModDate(){
-	# Get current date
-	dateNow="$(date +%m\ %d\ %Y | awk '{ for (i=NF; i>1; i--) printf("%s ",$i); print $1; }' | sed 's/\ /-/g')"
-
-	# Get file's modification date
-	dateMod="$(GetFileInfo -m "$1" | awk '{print $1}' | sed 's/\//\ /g' | awk '{ for (i=NF; i>1; i--) printf("%s ",$i); print $1; }' | sed 's/\ /-/g')"
-
 	# Convert current date to epoch
-	dateNowEpoch="$(date -j -f "%Y-%d-%m" "$dateNow" +%s)"
+	dateNowEpoch="$(date +%s)"
 
 	# Convert modification date to epoch
-	dateModEpoch="$(date -j -f "%Y-%d-%m" "$dateMod" +%s)"
+	dateModEpoch="$(stat -f %m "$1")"
 
 	# Calculate Difference
 	dateDiff="$(($dateNowEpoch - $dateModEpoch))"
