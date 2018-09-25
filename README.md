@@ -2,9 +2,10 @@
 A script to generate debugging files for hackintosh by black.dragon74
 
 # Installation
-- Open up Terminal
-- Type :-
-- sudo curl -o /usr/bin/gen_debug https://raw.githubusercontent.com/black-dragon74/OSX-Debug/master/gen_debug.sh && sudo chmod a+x /usr/bin/gen_debug
+- Open up Terminal and type:
+```bash
+sudo curl -o /usr/bin/gen_debug https://raw.githubusercontent.com/black-dragon74/OSX-Debug/master/gen_debug.sh && sudo chmod a+x /usr/bin/gen_debug
+```
 
 # Usage
 It is fully automated script. All the dependencies are fetched automatically from the git.
