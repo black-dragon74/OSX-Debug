@@ -7,7 +7,7 @@
 # EFI Mount script credits to RehabMan @tonymacx86
 
 # Declare variables to be used in this script
-scriptVersion=4.3.2
+scriptVersion=4.3.3
 homeDir="$(echo $HOME)"
 scriptDir="$homeDir/Library/debugNk"
 dbgURL="https://raw.githubusercontent.com/black-dragon74/OSX-Debug/master/gen_debug.sh"
@@ -285,6 +285,16 @@ function dumpBootLog(){
 
 function dumpNVRAM(){
 	nvram -x -p
+}
+
+function dumpLilu(){
+	if [[ ! -z $(ls /var/log | grep -i "lilu") ]]; then
+		echo "Dumping LILU logs..."
+		mkdir $outDir/lilu_logs
+		for f in $(ls /var/log | grep -i "lilu"); do
+			cp /var/log/$f $outDir/lilu_logs
+		done
+	fi
 }
 
 function dumpPanicLog(){
@@ -791,6 +801,9 @@ rebuildCaches &>kextcache_log.txt
 # if [[ $fixDupes == "yes" ]]; then
 # 	fixDupKextLog
 # fi
+
+# Dump LILU logs
+dumpLilu
 
 # Dump IOREG
 echo -e "Dumping IOREG."
