@@ -18,7 +18,6 @@ regExplorer=/Applications/IORegistryExplorer.app
 regExplorerURL="https://raw.githubusercontent.com/black-dragon74/OSX-Debug/master/IORegistryExplorer.zip"
 patchmaticB="$scriptDir/patchmatic"
 patchmaticBURL="https://raw.githubusercontent.com/black-dragon74/OSX-Debug/master/patchmatic"
-testURL="github.com"
 maskedVal="XX-MASKED-XX"
 checkForConnAhead=0
 randomNumber=$(echo $(( ( RANDOM )  + 12 )))
@@ -57,6 +56,12 @@ function printHeader(){
 }
 
 function checkConn(){
+	if [[ -z "$testURL" ]]; then
+		testURL="github.com"
+	else
+		echo "Using custom test url: $testURL"
+	fi
+
 	if ping -c 1 $testURL &>/dev/null;
 		then
 		echo "Internet connectivity is all good to go."
@@ -316,6 +321,13 @@ function updateIfNew(){
 	# If yes, it will update automatically
 
 	# If internet connection is fine
+	# Hacky way to overcome ping issues in some countries.
+	if [[ -z "$testURL" ]]; then
+		testURL="github.com"
+	else
+		echo "Using custom test url: $testURL"
+	fi
+
 	if ping -c 1 $testURL &>/dev/null;
 		then
 		echo "Hold on for a moment...."
