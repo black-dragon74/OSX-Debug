@@ -25,6 +25,12 @@ In case you have no internet connectivity, do the following :-
 
 That's it, you can now use the script offline as all required files are available offline just by launching terminal and typing: gen_debug
 
+## Network Test Failure:
+
+- If you can't pass the networking test, use `export testURL=something.com` to set the `testURL`.
+- You can also use `echo "export testURL=something.com" >> ~/.bash_profile` to make a permanent edit.
+
+
 # Credits
 RehabMan for MountEFI script
 
