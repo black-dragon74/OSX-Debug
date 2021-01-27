@@ -380,7 +380,10 @@ if [[ $1 = "-v" ]]; then
 fi
 
 # Restrict execution to Darwin
-if [[ "$(sw_vers -productName 2>/dev/null | awk '{print $1}')" != "Mac" ]]; then
+os=$(sw_vers -productName 2>/dev/null | awk '{print $1}')
+if [[ $os == "Mac" || $os == "macOS" ]]; then
+	:
+else
 	echo "This script is meant for Apple macOS/OSX only." && exit
 fi
 
